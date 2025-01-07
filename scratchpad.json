@@ -1,0 +1,260 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+      "title": "Bedrock Proxy Application Endpoint",
+      "description": "Proxy Endpoint for Amazon Bedrock API calls",
+      "version": "0.1.0"
+    },
+    "paths": {
+      "/": {
+        "get": {
+          "tags": [
+            "Main"
+          ],
+          "summary": "Read Root",
+          "operationId": "read_root__get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/health": {
+        "get": {
+          "tags": [
+            "Health"
+          ],
+          "summary": "Healthcheck",
+          "operationId": "healthcheck_health_get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/ready": {
+        "get": {
+          "tags": [
+            "Health"
+          ],
+          "summary": "Liveliness",
+          "operationId": "liveliness_ready_get",
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/predict": {
+        "post": {
+          "tags": [
+            "Predict"
+          ],
+          "summary": "Predict",
+          "operationId": "predict_predict_post",
+          "parameters": [
+            {
+              "name": "cache-control",
+              "in": "header",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  }
+                ],
+                "title": "Cache-Control"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Request"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "type": "array",
+              "title": "Detail"
+            }
+          },
+          "type": "object",
+          "title": "HTTPValidationError"
+        },
+        "Request": {
+          "type": "object",
+          "properties": {
+            "bedrock_api": {
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "type": "string",
+                  "enum": ["CreateKnowledgeBase", "DeleteKnowledgeBase", "UpdateKnowledgeBase", "GetKnowledgeBase"],
+                  "title": "Bedrock API Operation"
+                },
+                "request_payload": {
+                  "type": "object",
+                  "properties": {
+                    "knowledgeBaseConfiguration": {
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "type": "string",
+                          "description": "The name of the knowledge base"
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "A description for the knowledge base"
+                        },
+                        "storageConfiguration": {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "enum": ["OPENSEARCH", "AURORA", "PINECONE", "REDIS", "MONGODB"]
+                            },
+                            "vectorStoreConfiguration": {
+                              "type": "object"
+                            }
+                          },
+                          "required": ["type"]
+                        },
+                        "roleArn": {
+                          "type": "string"
+                        },
+                        "tags": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "key": {
+                                "type": "string"
+                              },
+                              "value": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "required": ["name", "storageConfiguration"]
+                    }
+                  }
+                },
+                "metadata": {
+                  "type": "object",
+                  "properties": {
+                    "requestId": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "sourceIp": {
+                      "type": "string"
+                    },
+                    "userAgent": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "required": ["operation", "request_payload"]
+            }
+          },
+          "required": ["bedrock_api"]
+        },
+        "ValidationError": {
+          "properties": {
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "array",
+              "title": "Location"
+            },
+            "msg": {
+              "type": "string",
+              "title": "Message"
+            },
+            "type": {
+              "type": "string",
+              "title": "Error Type"
+            }
+          },
+          "type": "object",
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError"
+        }
+      }
+    }
+  }
+  
